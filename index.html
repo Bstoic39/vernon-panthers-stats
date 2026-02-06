@@ -3,119 +3,226 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Vernon Panthers Stat Tracker</title>
+  <title>Panther Stats</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0B1E3A" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Panther Stats">
+
   <style>
     :root{
-      --navy:#0B1E3A;
-      --red:#D11F2F;
-      --bg:#ffffff;
-      --muted:#64748b;
-      --border:#e2e8f0;
-      --soft:#f8fafc;
-      --shadow: 0 1px 2px rgba(15,23,42,.06);
+      --navy:#0B1E3A;     /* Panther blue */
+      --red:#D11F2F;      /* Panther red */
+      --white:#ffffff;
+      --muted:#cbd5e1;
+      --border:rgba(255,255,255,.12);
+      --soft:rgba(255,255,255,.06);
+      --soft2:rgba(255,255,255,.08);
+      --shadow: 0 10px 25px rgba(0,0,0,.22);
+      --shadow2: 0 2px 10px rgba(0,0,0,.18);
       --radius: 18px;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     }
-    body{ margin:0; background:var(--bg); color:#0f172a; }
-    .wrap{ max-width:1100px; margin:0 auto; padding:20px 16px 48px; }
-    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-    .brand{ display:flex; align-items:center; gap:12px; }
-    .logo{
-      width:52px; height:52px; border-radius:14px; background:#fff;
-      object-fit:contain; box-shadow:var(--shadow); border:1px solid var(--border);
+
+    body{
+      margin:0;
+      background: radial-gradient(1200px 700px at 10% 0%, rgba(209,31,47,.18), transparent 55%),
+                  radial-gradient(1000px 600px at 95% 15%, rgba(255,255,255,.07), transparent 60%),
+                  var(--navy);
+      color: var(--white);
     }
-    .title{ font-weight:700; font-size:20px; color:var(--navy); line-height:1.1; }
-    .subtitle{ font-size:13px; color:var(--muted); margin-top:2px; }
-    .pill{ font-size:13px; color:var(--muted); }
+
+    .wrap{ max-width:1100px; margin:0 auto; padding:18px 14px 48px; }
+
+    /* Header */
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 12px 0 14px;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(11,30,58,.92), rgba(11,30,58,.55), rgba(11,30,58,0));
+    }
+    .brandRow{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+    }
+    .badge{
+      width:44px; height:44px; border-radius:14px;
+      background: linear-gradient(135deg, rgba(209,31,47,.95), rgba(255,255,255,.12));
+      box-shadow: var(--shadow2);
+      border: 1px solid rgba(255,255,255,.16);
+      display:grid; place-items:center;
+      font-weight: 900;
+      letter-spacing: .5px;
+    }
+    .title{
+      font-weight: 900;
+      font-size: 20px;
+      letter-spacing: .3px;
+      line-height: 1.05;
+    }
+    .subtitle{
+      margin-top:3px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .pill{
+      font-size: 12px;
+      color: var(--white);
+      font-weight: 800;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow2);
+    }
+
+    /* Layout */
     .grid{ display:grid; gap:14px; }
     .card{
       border:1px solid var(--border);
       border-radius:var(--radius);
-      background:#fff;
-      box-shadow:var(--shadow);
+      background: rgba(255,255,255,.06);
+      box-shadow: var(--shadow);
       padding:14px;
     }
     .section{
       border:1px solid var(--border);
       border-radius:var(--radius);
-      background:var(--soft);
+      background: rgba(255,255,255,.05);
       padding:14px;
     }
+
     .sectionHead{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; }
-    .sectionTitle{ font-weight:800; color:var(--navy); font-size:18px; }
-    .sectionMeta{ color:var(--muted); font-size:13px; }
-    .stats{ display:grid; gap:12px; margin-top:12px; grid-template-columns:repeat(2, minmax(0, 1fr)); }
-    @media (min-width: 900px){ .stats{ grid-template-columns:repeat(5, minmax(0, 1fr)); } }
-    .stat{ border:1px solid var(--border); border-radius:var(--radius); background:#fff; padding:12px; box-shadow:var(--shadow); }
-    .statLabel{ font-size:12px; color:var(--muted); font-weight:700; }
-    .statValue{ margin-top:6px; font-size:24px; font-weight:900; color:var(--navy); }
-    .statSub{ margin-top:4px; font-size:12px; color:var(--muted); }
+    .sectionTitle{ font-weight:900; font-size:16px; letter-spacing:.2px; }
+    .sectionMeta{ color: var(--muted); font-size:12px; font-weight:700; }
+
+    .stats{
+      display:grid;
+      gap:12px;
+      margin-top:12px;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+    @media (min-width: 900px){
+      .stats{ grid-template-columns:repeat(5, minmax(0, 1fr)); }
+    }
+
+    .stat{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      padding:12px;
+      box-shadow: var(--shadow2);
+    }
+    .statLabel{ font-size:11px; color: var(--muted); font-weight:900; letter-spacing:.5px; text-transform:uppercase; }
+    .statValue{ margin-top:7px; font-size:24px; font-weight:1000; }
+    .statSub{ margin-top:4px; font-size:12px; color: var(--muted); font-weight:700; }
+
     .twoCol{ display:grid; gap:14px; margin-top:14px; }
     @media (min-width: 1000px){ .twoCol{ grid-template-columns: 1fr 1fr; } }
-    .h2{ font-weight:800; color:var(--navy); font-size:16px; }
+
+    .h2{ font-weight: 900; font-size: 15px; letter-spacing:.2px; }
+    .muted{ color: var(--muted); font-size: 12px; font-weight: 700; line-height: 1.4; }
+
+    /* Form */
     .row{ display:grid; gap:10px; margin-top:12px; grid-template-columns: 1fr; }
     @media (min-width: 680px){ .row{ grid-template-columns: 1fr 1fr; } }
-    label{ display:block; font-size:13px; color:#334155; font-weight:700; }
+
+    label{ display:block; font-size:12px; font-weight:900; color: rgba(255,255,255,.92); letter-spacing:.25px; }
     input{
       width:100%;
       margin-top:6px;
       padding:10px 12px;
-      border:1px solid var(--border);
+      border:1px solid rgba(255,255,255,.18);
       border-radius:14px;
       font-size:14px;
       outline:none;
+      background: rgba(0,0,0,.14);
+      color: var(--white);
     }
-    input:focus{ border-color:#94a3b8; box-shadow:0 0 0 3px rgba(148,163,184,.25); }
+    input::placeholder{ color: rgba(203,213,225,.75); }
+    input:focus{
+      border-color: rgba(209,31,47,.8);
+      box-shadow: 0 0 0 3px rgba(209,31,47,.22);
+    }
+
     .actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:12px; flex-wrap:wrap; }
     button{
-      border:1px solid var(--border);
-      background:#fff;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color: var(--white);
       padding:10px 14px;
       border-radius:16px;
-      font-weight:800;
+      font-weight:900;
       cursor:pointer;
       font-size:13px;
+      box-shadow: var(--shadow2);
     }
-    button:hover{ background:var(--soft); }
-    .primary{ background:var(--red); border-color:var(--red); color:#fff; }
-    .primary:hover{ opacity:.95; background:var(--red); }
-    .ghost{ background:#fff; }
-    .muted{ color:var(--muted); font-size:13px; }
-    .err{ color:var(--red); font-size:13px; margin-top:10px; font-weight:700; }
-    table{ width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
+    button:hover{ background: rgba(255,255,255,.12); }
+
+    .primary{
+      background: linear-gradient(135deg, rgba(209,31,47,.98), rgba(209,31,47,.72));
+      border-color: rgba(209,31,47,.9);
+    }
+    .primary:hover{ filter: brightness(1.02); }
+
+    .ghost{ background: rgba(255,255,255,.06); }
+
+    .err{ color: #ffd1d6; font-size:13px; margin-top:10px; font-weight:900; }
+    .hidden{ display:none !important; }
+
+    /* Table */
+    .tableWrap{ overflow-x:auto; margin-top:10px; }
+    table{ width:100%; border-collapse:collapse; font-size:13px; }
     thead th{
-      text-align:left; color:var(--muted); font-weight:800; border-bottom:1px solid var(--border);
+      text-align:left;
+      color: rgba(203,213,225,.9);
+      font-weight: 900;
+      border-bottom:1px solid rgba(255,255,255,.14);
       padding:10px 8px;
       white-space:nowrap;
+      letter-spacing:.3px;
+      text-transform:uppercase;
+      font-size:11px;
     }
     tbody td{
-      border-bottom:1px solid #f1f5f9;
+      border-bottom:1px solid rgba(255,255,255,.08);
       padding:10px 8px;
       vertical-align:middle;
       white-space:nowrap;
     }
-    .tableWrap{ overflow-x:auto; }
     .miniBtn{
-      padding:6px 10px; border-radius:12px; font-size:12px; font-weight:800;
+      padding:7px 10px;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:900;
     }
-    .foot{ margin-top:18px; font-size:12px; color:var(--muted); }
-    .hidden{ display:none !important; }
+    .foot{ margin-top:16px; font-size:12px; color: rgba(203,213,225,.9); font-weight:700; }
+    a{ color: inherit; }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="topbar">
-      <div class="brand">
-        <img id="logo" class="logo" src="logo.png" alt="Vernon Panthers logo">
-        <div>
-          <div class="title">Vernon Panthers</div>
-          <div class="subtitle">Stat Tracker</div>
+      <div class="brandRow">
+        <div class="brand">
+          <div class="badge">PS</div>
+          <div>
+            <div class="title">Panther Stats</div>
+            <div class="subtitle">Vernon Panthers • Season + Last 5</div>
+          </div>
         </div>
+        <div class="pill" id="quickFT">Season FT%: —</div>
       </div>
-      <div class="pill" id="quickFT">Season FT%: —</div>
     </div>
 
-    <div class="grid" style="margin-top:16px;">
+    <div class="grid">
       <div class="section" id="seasonSection"></div>
       <div class="section" id="last5Section"></div>
     </div>
@@ -163,7 +270,7 @@
       <div class="card">
         <div class="h2">Backup & share</div>
         <div class="muted" style="margin-top:6px;">
-          This app saves to your device. Export a JSON file to back up or share stats. Import restores from a file.
+          Saves to your device. Export a JSON file to back up or send to teammates. Import restores from a file.
         </div>
         <div class="actions" style="justify-content:flex-start;">
           <button type="button" id="exportBtn" class="primary">Export JSON</button>
@@ -171,6 +278,10 @@
           <input type="file" id="importFile" accept="application/json" class="hidden" />
         </div>
         <div id="importErr" class="err hidden"></div>
+
+        <div class="muted" style="margin-top:10px;">
+          PWA tip: on iPhone use Share → “Add to Home Screen”. On Android/Chrome you’ll get an “Install” prompt.
+        </div>
       </div>
     </div>
 
@@ -196,17 +307,21 @@
       </div>
     </div>
 
-    <div class="foot">Tip: Use Export/Import to keep your stats safe or share with teammates.</div>
+    <div class="foot">Panther Stats is offline-friendly once installed.</div>
   </div>
 
 <script>
 (() => {
-  const KEY = "vps_games_v1";
+  // Service worker registration (required for offline + installability signals)
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
 
+  const KEY = "vps_games_v1";
   const $ = (id) => document.getElementById(id);
 
-  // Elements
-  const logoEl = $("logo");
   const quickFTEl = $("quickFT");
   const seasonEl = $("seasonSection");
   const last5El = $("last5Section");
@@ -224,7 +339,6 @@
   const importFile = $("importFile");
   const importErr = $("importErr");
 
-  // Inputs
   const inp = {
     date: $("date"),
     opponent: $("opponent"),
@@ -235,9 +349,6 @@
     tpm: $("tpm"),
     fouls: $("fouls"),
   };
-
-  // Hide logo if missing
-  logoEl.addEventListener("error", () => logoEl.classList.add("hidden"));
 
   function todayISO() {
     const d = new Date();
@@ -264,9 +375,7 @@
       if (!raw) return [];
       const data = JSON.parse(raw);
       return Array.isArray(data) ? data : [];
-    } catch {
-      return [];
-    }
+    } catch { return []; }
   }
 
   function saveGames(games) {
@@ -371,6 +480,15 @@
     `;
   }
 
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
   // State
   let games = loadGames();
   let editingId = null;
@@ -449,15 +567,6 @@
     }
   }
 
-  function escapeHtml(s) {
-    return String(s)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
   // Events
   formEl.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -522,7 +631,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "vernon-panthers-stats.json";
+    a.download = "panther-stats.json";
     a.click();
     URL.revokeObjectURL(url);
   });
