@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vernon Panthers Stat Tracker</title>
+  <style>
+    :root{
+      --navy:#0B1E3A;
+      --red:#D11F2F;
+      --bg:#ffffff;
+      --muted:#64748b;
+      --border:#e2e8f0;
+      --soft:#f8fafc;
+      --shadow: 0 1px 2px rgba(15,23,42,.06);
+      --radius: 18px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    body{ margin:0; background:var(--bg); color:#0f172a; }
+    .wrap{ max-width:1100px; margin:0 auto; padding:20px 16px 48px; }
+    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:52px; height:52px; border-radius:14px; background:#fff;
+      object-fit:contain; box-shadow:var(--shadow); border:1px solid var(--border);
+    }
+    .title{ font-weight:700; font-size:20px; color:var(--navy); line-height:1.1; }
+    .subtitle{ font-size:13px; color:var(--muted); margin-top:2px; }
+    .pill{ font-size:13px; color:var(--muted); }
+    .grid{ display:grid; gap:14px; }
+    .card{
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      background:#fff;
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .section{
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      background:var(--soft);
+      padding:14px;
+    }
+    .sectionHead{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .sectionTitle{ font-weight:800; color:var(--navy); font-size:18px; }
+    .sectionMeta{ color:var(--muted); font-size:13px; }
+    .stats{ display:grid; gap:12px; margin-top:12px; grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    @media (min-width: 900px){ .stats{ grid-template-columns:repeat(5, minmax(0, 1fr)); } }
+    .stat{ border:1px solid var(--border); border-radius:var(--radius); background:#fff; padding:12px; box-shadow:var(--shadow); }
+    .statLabel{ font-size:12px; color:var(--muted); font-weight:700; }
+    .statValue{ margin-top:6px; font-size:24px; font-weight:900; color:var(--navy); }
+    .statSub{ margin-top:4px; font-size:12px; color:var(--muted); }
+    .twoCol{ display:grid; gap:14px; margin-top:14px; }
+    @media (min-width: 1000px){ .twoCol{ grid-template-columns: 1fr 1fr; } }
+    .h2{ font-weight:800; color:var(--navy); font-size:16px; }
+    .row{ display:grid; gap:10px; margin-top:12px; grid-template-columns: 1fr; }
+    @media (min-width: 680px){ .row{ grid-template-columns: 1fr 1fr; } }
+    label{ display:block; font-size:13px; color:#334155; font-weight:700; }
+    input{
+      width:100%;
+      margin-top:6px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      font-size:14px;
+      outline:none;
+    }
+    input:focus{ border-color:#94a3b8; box-shadow:0 0 0 3px rgba(148,163,184,.25); }
+    .actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:12px; flex-wrap:wrap; }
+    button{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:10px 14px;
+      border-radius:16px;
+      font-weight:800;
+      cursor:pointer;
+      font-size:13px;
+    }
+    button:hover{ background:var(--soft); }
+    .primary{ background:var(--red); border-color:var(--red); color:#fff; }
+    .primary:hover{ opacity:.95; background:var(--red); }
+    .ghost{ background:#fff; }
+    .muted{ color:var(--muted); font-size:13px; }
+    .err{ color:var(--red); font-size:13px; margin-top:10px; font-weight:700; }
+    table{ width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
+    thead th{
+      text-align:left; color:var(--muted); font-weight:800; border-bottom:1px solid var(--border);
+      padding:10px 8px;
+      white-space:nowrap;
+    }
+    tbody td{
+      border-bottom:1px solid #f1f5f9;
+      padding:10px 8px;
+      vertical-align:middle;
+      white-space:nowrap;
+    }
+    .tableWrap{ overflow-x:auto; }
+    .miniBtn{
+      padding:6px 10px; border-radius:12px; font-size:12px; font-weight:800;
+    }
+    .foot{ margin-top:18px; font-size:12px; color:var(--muted); }
+    .hidden{ display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <img id="logo" class="logo" src="logo.png" alt="Vernon Panthers logo">
+        <div>
+          <div class="title">Vernon Panthers</div>
+          <div class="subtitle">Stat Tracker</div>
+        </div>
+      </div>
+      <div class="pill" id="quickFT">Season FT%: —</div>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <div class="section" id="seasonSection"></div>
+      <div class="section" id="last5Section"></div>
+    </div>
+
+    <div class="twoCol">
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <div class="h2" id="formTitle">Add game</div>
+          <button class="ghost hidden" id="cancelEditBtn" type="button">Cancel</button>
+        </div>
+
+        <form id="gameForm">
+          <div class="row">
+            <div>
+              <label>Date</label>
+              <input id="date" type="date" required />
+            </div>
+            <div>
+              <label>Opponent (optional)</label>
+              <input id="opponent" type="text" placeholder="e.g., Central" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div><label>Points</label><input id="points" type="number" min="0" step="1" value="0" /></div>
+            <div><label>Assists</label><input id="assists" type="number" min="0" step="1" value="0" /></div>
+          </div>
+
+          <div class="row">
+            <div><label>FT Made</label><input id="ftm" type="number" min="0" step="1" value="0" /></div>
+            <div><label>FT Attempted</label><input id="fta" type="number" min="0" step="1" value="0" /></div>
+          </div>
+
+          <div class="row">
+            <div><label>3PM</label><input id="tpm" type="number" min="0" step="1" value="0" /></div>
+            <div><label>Fouls</label><input id="fouls" type="number" min="0" step="1" value="0" /></div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" id="submitBtn" type="submit">Add game</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="h2">Backup & share</div>
+        <div class="muted" style="margin-top:6px;">
+          This app saves to your device. Export a JSON file to back up or share stats. Import restores from a file.
+        </div>
+        <div class="actions" style="justify-content:flex-start;">
+          <button type="button" id="exportBtn" class="primary">Export JSON</button>
+          <button type="button" id="importBtn">Import JSON</button>
+          <input type="file" id="importFile" accept="application/json" class="hidden" />
+        </div>
+        <div id="importErr" class="err hidden"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div class="h2">Game log</div>
+      <div class="muted" id="emptyMsg" style="margin-top:8px;">No games yet. Add your first game above.</div>
+      <div class="tableWrap">
+        <table id="gamesTable" class="hidden">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Opp</th>
+              <th>PTS</th>
+              <th>AST</th>
+              <th>FT</th>
+              <th>3PM</th>
+              <th>Fouls</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="gamesBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="foot">Tip: Use Export/Import to keep your stats safe or share with teammates.</div>
+  </div>
+
+<script>
+(() => {
+  const KEY = "vps_games_v1";
+
+  const $ = (id) => document.getElementById(id);
+
+  // Elements
+  const logoEl = $("logo");
+  const quickFTEl = $("quickFT");
+  const seasonEl = $("seasonSection");
+  const last5El = $("last5Section");
+  const formEl = $("gameForm");
+  const formTitleEl = $("formTitle");
+  const cancelEditBtn = $("cancelEditBtn");
+  const submitBtn = $("submitBtn");
+
+  const tableEl = $("gamesTable");
+  const bodyEl = $("gamesBody");
+  const emptyMsgEl = $("emptyMsg");
+
+  const exportBtn = $("exportBtn");
+  const importBtn = $("importBtn");
+  const importFile = $("importFile");
+  const importErr = $("importErr");
+
+  // Inputs
+  const inp = {
+    date: $("date"),
+    opponent: $("opponent"),
+    points: $("points"),
+    assists: $("assists"),
+    ftm: $("ftm"),
+    fta: $("fta"),
+    tpm: $("tpm"),
+    fouls: $("fouls"),
+  };
+
+  // Hide logo if missing
+  logoEl.addEventListener("error", () => logoEl.classList.add("hidden"));
+
+  function todayISO() {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function uid() {
+    if (crypto && crypto.randomUUID) return crypto.randomUUID();
+    return String(Date.now()) + Math.random().toString(16).slice(2);
+  }
+
+  function clampInt(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.trunc(n));
+  }
+
+  function loadGames() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return [];
+      const data = JSON.parse(raw);
+      return Array.isArray(data) ? data : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveGames(games) {
+    localStorage.setItem(KEY, JSON.stringify(games));
+  }
+
+  function normalizeGame(g) {
+    const game = {
+      id: String(g.id || ""),
+      date: String(g.date || ""),
+      opponent: String(g.opponent || ""),
+      points: clampInt(g.points),
+      assists: clampInt(g.assists),
+      ftm: clampInt(g.ftm),
+      fta: clampInt(g.fta),
+      tpm: clampInt(g.tpm),
+      fouls: clampInt(g.fouls),
+    };
+    if (game.ftm > game.fta) game.ftm = game.fta;
+    return game;
+  }
+
+  function sortDesc(games) {
+    return games.map(normalizeGame).sort((a,b) => (b.date || "").localeCompare(a.date || ""));
+  }
+
+  function sliceLastN(games, n) {
+    return sortDesc(games).slice(0, n);
+  }
+
+  function formatPct(made, att) {
+    const a = Number(att);
+    const m = Number(made);
+    if (!Number.isFinite(a) || a <= 0) return "—";
+    return ((m / a) * 100).toFixed(1) + "%";
+  }
+
+  function fmtAvg(x) {
+    return (Number.isFinite(x) ? x : 0).toFixed(1);
+  }
+
+  function computeAggregate(games) {
+    const gs = games.map(normalizeGame);
+    const gp = gs.length;
+    const totals = { points:0, assists:0, ftm:0, fta:0, tpm:0, fouls:0 };
+
+    for (const g of gs) {
+      totals.points += g.points;
+      totals.assists += g.assists;
+      totals.ftm += g.ftm;
+      totals.fta += g.fta;
+      totals.tpm += g.tpm;
+      totals.fouls += g.fouls;
+    }
+
+    const perGame = (v) => (gp > 0 ? v / gp : 0);
+    const avgs = {
+      ppg: perGame(totals.points),
+      apg: perGame(totals.assists),
+      tpmg: perGame(totals.tpm),
+      foulpg: perGame(totals.fouls),
+    };
+
+    const ftPct = totals.fta > 0 ? totals.ftm / totals.fta : null;
+    return { gp, totals, avgs, ftPct };
+  }
+
+  function renderSection(title, agg) {
+    const ftValue = agg.ftPct === null ? "—" : (agg.ftPct * 100).toFixed(1) + "%";
+    return `
+      <div class="sectionHead">
+        <div class="sectionTitle">${title}</div>
+        <div class="sectionMeta">Games: ${agg.gp}</div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="statLabel">PPG</div>
+          <div class="statValue">${fmtAvg(agg.avgs.ppg)}</div>
+          <div class="statSub">Total: ${agg.totals.points}</div>
+        </div>
+        <div class="stat">
+          <div class="statLabel">APG</div>
+          <div class="statValue">${fmtAvg(agg.avgs.apg)}</div>
+          <div class="statSub">Total: ${agg.totals.assists}</div>
+        </div>
+        <div class="stat">
+          <div class="statLabel">FT%</div>
+          <div class="statValue">${ftValue}</div>
+          <div class="statSub">FT: ${agg.totals.ftm}-${agg.totals.fta}</div>
+        </div>
+        <div class="stat">
+          <div class="statLabel">3PM/G</div>
+          <div class="statValue">${fmtAvg(agg.avgs.tpmg)}</div>
+          <div class="statSub">Total: ${agg.totals.tpm}</div>
+        </div>
+        <div class="stat">
+          <div class="statLabel">Fouls/G</div>
+          <div class="statValue">${fmtAvg(agg.avgs.foulpg)}</div>
+          <div class="statSub">Total: ${agg.totals.fouls}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // State
+  let games = loadGames();
+  let editingId = null;
+
+  function resetForm() {
+    inp.date.value = todayISO();
+    inp.opponent.value = "";
+    inp.points.value = 0;
+    inp.assists.value = 0;
+    inp.ftm.value = 0;
+    inp.fta.value = 0;
+    inp.tpm.value = 0;
+    inp.fouls.value = 0;
+  }
+
+  function setEditMode(game) {
+    editingId = game ? game.id : null;
+
+    if (game) {
+      formTitleEl.textContent = "Edit game";
+      submitBtn.textContent = "Save changes";
+      cancelEditBtn.classList.remove("hidden");
+
+      inp.date.value = game.date || todayISO();
+      inp.opponent.value = game.opponent || "";
+      inp.points.value = game.points;
+      inp.assists.value = game.assists;
+      inp.ftm.value = game.ftm;
+      inp.fta.value = game.fta;
+      inp.tpm.value = game.tpm;
+      inp.fouls.value = game.fouls;
+    } else {
+      formTitleEl.textContent = "Add game";
+      submitBtn.textContent = "Add game";
+      cancelEditBtn.classList.add("hidden");
+      resetForm();
+    }
+  }
+
+  function render() {
+    const season = computeAggregate(games);
+    const last5 = computeAggregate(sliceLastN(games, 5));
+
+    quickFTEl.textContent = `Season FT%: ${formatPct(season.totals.ftm, season.totals.fta)}`;
+    seasonEl.innerHTML = renderSection("Season to date", season);
+    last5El.innerHTML = renderSection("Last 5 games", last5);
+
+    const rows = sortDesc(games);
+    bodyEl.innerHTML = "";
+
+    if (rows.length === 0) {
+      tableEl.classList.add("hidden");
+      emptyMsgEl.classList.remove("hidden");
+      return;
+    }
+
+    tableEl.classList.remove("hidden");
+    emptyMsgEl.classList.add("hidden");
+
+    for (const g of rows) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${g.date}</td>
+        <td>${g.opponent ? escapeHtml(g.opponent) : "—"}</td>
+        <td>${g.points}</td>
+        <td>${g.assists}</td>
+        <td>${g.ftm}-${g.fta}</td>
+        <td>${g.tpm}</td>
+        <td>${g.fouls}</td>
+        <td>
+          <button class="miniBtn" data-action="edit" data-id="${g.id}">Edit</button>
+          <button class="miniBtn" data-action="delete" data-id="${g.id}">Delete</button>
+        </td>
+      `;
+      bodyEl.appendChild(tr);
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  // Events
+  formEl.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const g = normalizeGame({
+      id: editingId || uid(),
+      date: inp.date.value,
+      opponent: inp.opponent.value.trim(),
+      points: inp.points.value,
+      assists: inp.assists.value,
+      ftm: inp.ftm.value,
+      fta: inp.fta.value,
+      tpm: inp.tpm.value,
+      fouls: inp.fouls.value,
+    });
+
+    if (editingId) {
+      games = games.map(x => (String(x.id) === String(editingId) ? g : x));
+      setEditMode(null);
+    } else {
+      games = [...games, g];
+      resetForm();
+    }
+
+    saveGames(games);
+    render();
+  });
+
+  cancelEditBtn.addEventListener("click", () => setEditMode(null));
+
+  bodyEl.addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    const id = btn.getAttribute("data-id");
+    const action = btn.getAttribute("data-action");
+    if (!id || !action) return;
+
+    if (action === "edit") {
+      const game = sortDesc(games).find(g => g.id === id);
+      if (game) setEditMode(game);
+    }
+
+    if (action === "delete") {
+      const ok = confirm("Delete this game?");
+      if (!ok) return;
+      games = games.filter(g => String(g.id) !== String(id));
+      if (editingId === id) setEditMode(null);
+      saveGames(games);
+      render();
+    }
+  });
+
+  // Export / Import
+  exportBtn.addEventListener("click", () => {
+    const payload = {
+      schema: "vps_games_v1",
+      exportedAt: new Date().toISOString(),
+      games: games.map(normalizeGame),
+    };
+    const text = JSON.stringify(payload, null, 2);
+    const blob = new Blob([text], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "vernon-panthers-stats.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  importBtn.addEventListener("click", () => {
+    importErr.classList.add("hidden");
+    importErr.textContent = "";
+    importFile.click();
+  });
+
+  importFile.addEventListener("change", async (e) => {
+    importErr.classList.add("hidden");
+    importErr.textContent = "";
+
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+
+      let importedGames = null;
+      if (Array.isArray(parsed)) importedGames = parsed;
+      else if (parsed && parsed.schema === "vps_games_v1" && Array.isArray(parsed.games)) importedGames = parsed.games;
+      else throw new Error("Unsupported file format.");
+
+      games = importedGames.map(normalizeGame);
+      saveGames(games);
+      setEditMode(null);
+      render();
+    } catch (err) {
+      importErr.textContent = err.message || "Import failed.";
+      importErr.classList.remove("hidden");
+    } finally {
+      importFile.value = "";
+    }
+  });
+
+  // Init
+  resetForm();
+  setEditMode(null);
+  render();
+})();
+</script>
+</body>
+</html>
